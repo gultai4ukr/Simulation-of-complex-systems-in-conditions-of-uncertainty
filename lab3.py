@@ -8,13 +8,21 @@ class Interval(object):
         return Interval(self.l + other.l, self.r + other.r)
 
     def __sub__(self, other):
-        return Interval(self.l - other.l, self.r - other.r)
+        return Interval(self.l - other.r, self.r - other.l)
 
     def __mul__(self, other):
-        return Interval(self.l * other.l, self.r * other.r)
+        mults = [
+            self.l * other.l, self.l * other.r,
+            self.r * other.l, self.r * other.r
+        ]
+        return Interval(min(mults), max(mults))
 
     def __truediv__(self, other):
-        return Interval(self.l / other.l, self.r / other.r)
+        divs = [
+            self.l / other.l, self.l / other.r,
+            self.r / other.l, self.r / other.r
+        ]
+        return Interval(min(divs), max(divs))
 
     def __abs__(self):
         return max(abs(self.l), abs(self.r))
