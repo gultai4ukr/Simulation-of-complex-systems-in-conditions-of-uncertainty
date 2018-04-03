@@ -19,5 +19,3 @@ print(
         mean(gammas), N, T
     )
 )
-
-
