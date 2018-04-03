@@ -6,31 +6,30 @@ from skfuzzy import control as ctrl
 
 TEMPERATURE_MIN = 20
 TEMPERATURE_MAX = 200
-OPTIMAL_TEMPERATURE = 80
+TEMPERATURE_OPTIMAL = 80
 
-temperature = ctrl.Antecedent(np.arange(TEMPERATURE_MIN, TEMPERATURE_MAX + 1, 1), 'temperature')
-
+temperature = ctrl.Antecedent(
+    np.arange(TEMPERATURE_MIN, TEMPERATURE_MAX + 1, 1),
+    'temperature'
+)
 temperature['cold'] = fuzz.trimf(
     temperature.universe,
-    [TEMPERATURE_MIN, TEMPERATURE_MIN, OPTIMAL_TEMPERATURE]
+    [TEMPERATURE_MIN, TEMPERATURE_MIN, TEMPERATURE_OPTIMAL]
 )
 temperature['comfortable'] = fuzz.trimf(
     temperature.universe,
-    [TEMPERATURE_MIN, OPTIMAL_TEMPERATURE, TEMPERATURE_MAX]
+    [TEMPERATURE_MIN, TEMPERATURE_OPTIMAL, TEMPERATURE_MAX]
 )
 temperature['hot'] = fuzz.trimf(
     temperature.universe,
-    [OPTIMAL_TEMPERATURE, TEMPERATURE_MAX, TEMPERATURE_MAX]
+    [TEMPERATURE_OPTIMAL, TEMPERATURE_MAX, TEMPERATURE_MAX]
 )
-
 temperature.view()
 
 wave_mode = ctrl.Consequent([0, 0.5, 1], 'wave_mode')
-
 wave_mode['off'] = [1, 0, 0]
 wave_mode['half_power'] = [0, 1, 0]
 wave_mode['on'] = [0, 0, 1]
-
 wave_mode.view()
 
 rules = [
@@ -38,15 +37,12 @@ rules = [
     ctrl.Rule(temperature['comfortable'], wave_mode['half_power']),
     ctrl.Rule(temperature['hot'], wave_mode['off'])
 ]
-
 # rules[0].view()
 # rules[1].view()
 # rules[2].view()
 
 sauna_controller = ctrl.ControlSystem(rules)
-
 sauna_simulation = ctrl.ControlSystemSimulation(sauna_controller)
-
 plt.show()
 
 print("*"*10 + " Sauna simulation started... For finishing type 'f'. " + "*"*10)
