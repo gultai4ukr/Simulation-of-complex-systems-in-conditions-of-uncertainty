@@ -8,7 +8,7 @@ TEMPERATURE_MIN = 20
 TEMPERATURE_MAX = 200
 OPTIMAL_TEMPERATURE = 80
 
-temperature = ctrl.Antecedent(np.arange(TEMPERATURE_MIN, TEMPERATURE_MAX+1, 1), 'temperature')
+temperature = ctrl.Antecedent(np.arange(TEMPERATURE_MIN, TEMPERATURE_MAX + 1, 1), 'temperature')
 
 temperature['cold'] = fuzz.trimf(
     temperature.universe,
@@ -48,18 +48,6 @@ sauna_controller = ctrl.ControlSystem(rules)
 sauna_simulation = ctrl.ControlSystemSimulation(sauna_controller)
 
 plt.show()
-
-bounds = []
-for t in [TEMPERATURE_MAX, TEMPERATURE_MIN]:
-    sauna_simulation.input['temperature'] = t
-    sauna_simulation.compute()
-    bounds.append(sauna_simulation.output['wave_mode'])
-mode_bounds = np.linspace(bounds[0], bounds[1], 4)
-modes = {
-    'off': (mode_bounds[0], mode_bounds[1]),
-    'half_power': (mode_bounds[1], mode_bounds[2]),
-    'on': (mode_bounds[2], mode_bounds[3]),
-}
 
 print("*"*10 + " Sauna simulation started... For finishing type 'f'. " + "*"*10)
 while 1:
