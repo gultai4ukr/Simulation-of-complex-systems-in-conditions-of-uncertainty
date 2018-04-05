@@ -85,4 +85,5 @@ def main():
 
 
 if __name__ == '__main__':
+    A[0][0] = Interval(3, 4)
     main()
