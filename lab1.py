@@ -4,17 +4,18 @@ from statistics import mean, variance, stdev
 
 from matplotlib import pyplot as plt
 import numpy as np
-from scipy.stats import chi2
+from scipy.stats import chi2, norm, expon
 
 
 N = 22547
 LAMBDA = 0.05
 MU = 10
 SIGMA = 2.5
+KEYS = ['normal', 'exponential']
 # 1
 populations = {
-    'exponential': [expovariate(LAMBDA) for _ in range(N)],
-    'normal': [normalvariate(MU, SIGMA) for _ in range(N)]
+    'normal': [normalvariate(MU, SIGMA) for _ in range(N)],
+    'exponential': [expovariate(LAMBDA) for _ in range(N)]
 }
 # 2
 means = {k: mean(v) for k, v in populations.items()}
@@ -39,12 +40,12 @@ r = 1 + floor(log2(N))
 xmax = {k: max(v) for k, v in populations.items()}
 xmin = {k: min(v) for k, v in populations.items()}
 h = {k: (xmax[k] - xmin[k]) / r for k in populations}
-xl = {k: [] for k in populations}
-xr = {k: [] for k in populations}
-freq = {k: [] for k in populations}
-rel_freq = {k: [] for k in populations}
-acc_rel_freq = {k: [] for k in populations}
-for k in populations:
+xl = {k: [] for k in KEYS}
+xr = {k: [] for k in KEYS}
+freq = {k: [] for k in KEYS}
+rel_freq = {k: [] for k in KEYS}
+acc_rel_freq = {k: [] for k in KEYS}
+for k in KEYS:
     print(
         """
     Interval series of {} distribution
@@ -54,7 +55,9 @@ for k in populations:
         """.format(k), end=''
     )
     for i in range(r):
-        xl[k].append(xmin[k] - h[k]/2 + i*h[k])
+        xl[k].append(xmin[k] + i*h[k] - h[k]/2)
+        # ======== comment from here ^ to get intervals which start from population's minimum
+        # ======== it may be useful for better function graph and histogram overlay
         xr[k].append(xl[k][i] + h[k])
         freq[k].append(0)
         for x in populations[k]:
@@ -70,11 +73,16 @@ for k in populations:
             ), end=''
         )
 # 5
-for k in populations:
-    # plt.gcf().canvas.set_window_title('New window title')
-    plt.hist(
+for k, dist, kwargs in zip(
+    KEYS, [norm, expon], [{'loc': MU, 'scale': SIGMA}, {'scale': 1/LAMBDA}]
+):
+    fig, ax = plt.subplots(1, 1)
+    plt.title("{} distribution density".format(k.capitalize()))
+    ax.hist(
         populations[k], bins=xl[k]+xr[k][-1:],
-        density=False, cumulative=False
+        density=True, label='population histogram'
     )
-    plt.title("Density of {} distribution".format(k))
+    x = np.linspace(dist.ppf(0.01, **kwargs), dist.ppf(0.99, **kwargs), 100)
+    ax.plot(x, dist.pdf(x, **kwargs), 'r', label='probability function')
+    ax.legend(loc='best', frameon=False)
     plt.show()
